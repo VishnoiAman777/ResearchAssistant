@@ -1,0 +1,1 @@
+Can you please tell me the temperature at Bangalore today and also tell me the current stock price of Groww
