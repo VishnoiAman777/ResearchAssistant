@@ -4,6 +4,11 @@ from langchain_core.messages import HumanMessage, AIMessage
 from typing import Any
 from agents.guardrails import content_safety_check
 
+REFUSAL_PHRASES = [
+    "I cannot process that request as it violates safety guidelines.",
+    "We are unable to give you response as it violates our safety guidelines."
+]
+
 @before_agent(can_jump_to=["end"])
 def content_safety_user_middleware(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
     if not state["messages"]:
@@ -31,7 +36,6 @@ def content_safety_assistant_middleware(state: AgentState, runtime: Runtime) -> 
     conversations_messages = state["messages"][-1].content
     if any(phrase in conversations_messages for phrase in REFUSAL_PHRASES):
             return None  # This was a refusal we generated → don't call NeMo again
-
     is_safe_with_nemo = content_safety_check(conversations_messages, role="assistant")
     if not is_safe_with_nemo:
         return {

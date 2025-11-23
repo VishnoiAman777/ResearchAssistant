@@ -17,6 +17,6 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat_endpoint(chat_request: ChatRequest):
     """Accept chat text and respond with a placeholder message."""
-    # result = deep_agent.invoke(chat_request.message, thread_id="1")
-    # print(result)
-    return {"message": "backend running fine"}
+    result = deep_agent.invoke(chat_request.message, thread_id="1")
+    
+    return {"message": result["messages"][-1].content}

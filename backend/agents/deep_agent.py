@@ -14,6 +14,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage
 import uuid
 from agents.middleware import content_safety_assistant_middleware, content_safety_user_middleware, jailbreak_middleware, query_analyzer_human_interrupt_middleware
+from agents.utils import format_message_content
+from langsmith import traceable
 
 
 class DeepAgents:
@@ -58,6 +60,7 @@ class DeepAgents:
             middleware=[content_safety_user_middleware, content_safety_assistant_middleware, jailbreak_middleware]
         )
 
+    @traceable
     def invoke(self, query, thread_id):
         config = {"configurable": {"thread_id": thread_id}}
         result = self.agent.invoke(
@@ -72,6 +75,7 @@ class DeepAgents:
         )
         return result
     
+    @traceable
     def resume_execution(self, thread_id):
         config = {"configurable": {"thread_id": thread_id}}
         result = self.agent.invoke(
@@ -87,3 +91,5 @@ class DeepAgents:
         )
 
 
+
+        
