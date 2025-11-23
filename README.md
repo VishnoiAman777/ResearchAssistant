@@ -2,6 +2,13 @@
 
 A sophisticated multi-agent AI system for conducting comprehensive internet research and generating high-quality reports. The system orchestrates multiple specialized AI agents to analyze user queries, conduct web research, and synthesize findings into professional research documents.
 
+## Demo Video
+
+https://github.com/user-attachments/assets/VideoRecording.mp4
+
+*Watch the Research Assistant in action: See how the system handles complex queries, orchestrates multiple agents, and generates comprehensive research reports with safety guardrails.*
+
+
 ## Things I could have done better(didn't had the time):
 - Call the middleware tools in parallel
 - Add Perplexity metric using GPT-2 score and create a custom heuristic to prevent GCG Attacks
@@ -62,7 +69,7 @@ Backend (FastAPI)
    conda activate research_assistant
    ```
 
-2. **Configure environment variables**: How to create env file
+2. **Configure environment variables**: How to create env file in the **backend folder**
    ```bash
    TAVILY_API_KEY="tvly-"
     ANTHROPIC_API_KEY="sk-ant"
