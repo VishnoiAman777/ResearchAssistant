@@ -1,1 +1,0 @@
-Can you please research about top product categories on amazon?

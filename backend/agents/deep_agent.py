@@ -11,16 +11,51 @@ from deepagents.backends import FilesystemBackend
 from deepagents import create_deep_agent
 import os
 from langgraph.checkpoint.memory import MemorySaver
-from langchain_core.messages import HumanMessage, AIMessage
-import uuid
-from agents.middleware import content_safety_assistant_middleware, content_safety_user_middleware, jailbreak_middleware, query_analyzer_human_interrupt_middleware
-from agents.utils import format_message_content
+from agents.middleware import content_safety_assistant_middleware, content_safety_user_middleware, jailbreak_middleware, query_analyzer_human_interrupt_middleware, prompt_injection_middleware
 from langsmith import traceable
 
 
 class DeepAgents:
+    """
+    DeepAgents: A multi-agent research and query analysis system.
+    This class orchestrates multiple AI agents to perform internet research, query analysis,
+    and report generation. It uses Claude Sonnet 4.0 as the underlying language model and
+    implements various safety middlewares to ensure content policy compliance.
+    Attributes:
+        final_instruction (str): Combined system instructions including research workflow,
+            subagent delegation, and report writing guidelines.
+        memory_path (str): File system path for storing agent memory files.
+        model (ChatAnthropic): Claude Sonnet 4.0 language model instance.
+        checkpointer (MemorySaver): Checkpoint manager for conversation state persistence.
+        research_sub_agent (dict): Configuration for the internet research agent with
+            tavily_search and think_tool capabilities.
+        query_analyzer_sub_agent (dict): Configuration for query analysis and classification
+            agent with human-in-the-loop interrupt capability.
+        agent: The main deep agent instance created with all subagents and middlewares.
+    Args:
+        max_concurrent_research_units (int, optional): Maximum number of research units
+            that can run concurrently. Defaults to 3.
+        max_researcher_iterations (int, optional): Maximum number of iterations a
+            researcher agent can perform. Defaults to 5.
+        memory_path (str, optional): Path to directory for storing agent memory files.
+            Defaults to "./agent_memory_files" in the current working directory.
+    Example:
+        >>> agent_system = DeepAgents(max_concurrent_research_units=5)
+        >>> result = agent_system.invoke("Research climate change impacts", thread_id="user123")
+        >>> resumed = agent_system.resume_execution(thread_id="user123")
+    Methods:
+        create_agents(): Initializes research and query analyzer subagents with their
+            respective tools, prompts, and middlewares.
+        invoke(query, thread_id): Processes a user query through the agent system.
+        resume_execution(thread_id): Resumes execution after a human interrupt with approval.
+    Safety Features:
+        - Content safety middleware for user and assistant messages
+        - Jailbreak detection and prevention
+        - Prompt injection detection
+        - Human-in-the-loop interrupts for query confirmation
+    """
     def __init__(self, max_concurrent_research_units=3, max_researcher_iterations=5, memory_path=os.path.join(os.path.abspath(os.getcwd()), "agent_memory_files")):
-        self.final_instruction = INSTRUCTIONS = (
+        self.final_instruction = (
             RESEARCH_WORKFLOW_INSTRUCTIONS
             + "\n\n" + "="*100 + "\n\n"
             + SUBAGENT_DELEGATION_INSTRUCTIONS.format(
@@ -57,7 +92,7 @@ class DeepAgents:
             subagents=[self.research_sub_agent, self.query_analyzer_sub_agent],
             backend=FilesystemBackend(root_dir=self.memory_path, virtual_mode=True),
             checkpointer=self.checkpointer,
-            middleware=[content_safety_user_middleware, content_safety_assistant_middleware, jailbreak_middleware]
+            middleware=[content_safety_user_middleware, content_safety_assistant_middleware, jailbreak_middleware, prompt_injection_middleware]
         )
 
     @traceable
@@ -74,22 +109,6 @@ class DeepAgents:
             config=config,
         )
         return result
-    
-    @traceable
-    def resume_execution(self, thread_id):
-        config = {"configurable": {"thread_id": thread_id}}
-        result = self.agent.invoke(
-            {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "APPROVE"  # Or "REJECT" based on your decision
-                    }
-                ],
-            }, 
-            config=config,
-        )
-
 
 
         
