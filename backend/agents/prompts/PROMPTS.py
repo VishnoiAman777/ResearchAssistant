@@ -174,6 +174,7 @@ Every think_tool call MUST structure your reflection string like this (verbose a
 Example think_tool input: "1. Findings: Tesla has 5-star NHTSA rating [URL1]. Rivian recall for airbags [URL2]. 2. Gaps: Missing Ford EV comparison. 3. Quality: All sources post-2024, reputable. 4. Next: Search 'Ford Mustang Mach-E safety features 2025'. 5. Progress: 60% - Need one more angle."
 
 <Final Response Format – When Research is Complete>
+**Always always return your findings along with citations**
 Once you've stopped (per reflections), output your findings in this EXACT structured Markdown format. Be verbose, professional, and synthesis-focused—NO raw dumps.
 """
 
@@ -259,6 +260,8 @@ No introduction needed — dive straight in:
 - Every factual claim must have at least one citation
 - Prefer recent sources (2023–2025) unless historical context is required
 - Cite inline with [1], [2], never (Source: URL)
+
+# **Always output the report with citations. A report without citations is a waste.**
 
 ### Sources Section (always last)
 ### Sources

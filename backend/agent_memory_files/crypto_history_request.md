@@ -1,0 +1,1 @@
+Can you generate a report on the history of cryptocurrency?
