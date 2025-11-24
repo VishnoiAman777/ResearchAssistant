@@ -11,8 +11,16 @@ from deepagents.backends import FilesystemBackend
 from deepagents import create_deep_agent
 import os
 from langgraph.checkpoint.memory import MemorySaver
-from agents.middleware import content_safety_assistant_middleware, content_safety_user_middleware, jailbreak_middleware, query_analyzer_human_interrupt_middleware, prompt_injection_middleware
 from langsmith import traceable
+from agents.middleware import (
+    ParallelBeforeMiddleware,
+    ParallelAfterMiddleware,
+    PromptInjectionMiddleware,
+    JailbreakMiddleware,
+    ContentSafetyUserMiddleware,
+    ContentSafetyAssistantMiddleware,
+    QueryAnalyzerHumanInterruptMiddleware
+)
 
 
 class DeepAgents:
@@ -78,21 +86,33 @@ class DeepAgents:
             "system_prompt": RESEARCHER_INSTRUCTIONS,
             "tools": [tavily_search, think_tool],
         }
-
         self.query_analyzer_sub_agent = {
             "name": "query-analyzer",
             "description": "Analyze and rewrite the user's query for clarity, type, and alignment. Classify as: simple (direct fact), complex (needs research/sub-queries), rubbish (nonsensical/irrelevant), or pivot (topic shift). Rewrite if unclear or disaligned, and suggest interrupts for user confirmation.",
             "system_prompt": QUERY_ANALYZER_INSTRUCTIONS,
             "tools": [think_tool],
-            "middleware": [query_analyzer_human_interrupt_middleware]
+            "middleware": [ParallelAfterMiddleware([QueryAnalyzerHumanInterruptMiddleware()]).after_agent_wrapper]
         }
+
+        # Group before-agent middlewares for parallelism (prompt injection, jailbreak, content safety user)
+        parallel_before = ParallelBeforeMiddleware([
+            PromptInjectionMiddleware(),
+            JailbreakMiddleware(),
+            ContentSafetyUserMiddleware()
+        ])
+
+        # Updated: Wrap after-agent middlewares (currently just content safety assistant) for parallelism/future-proofing
+        parallel_after = ParallelAfterMiddleware([ContentSafetyAssistantMiddleware()])
+
+        # Updated middleware list: Pass bound methods in the original logical order
+        # (all before_agents via the parallel wrapper, then all after_agents via the parallel wrapper)
         self.agent = create_deep_agent(
             model=self.model,
             system_prompt=self.final_instruction,
             subagents=[self.research_sub_agent, self.query_analyzer_sub_agent],
             backend=FilesystemBackend(root_dir=self.memory_path, virtual_mode=True),
             checkpointer=self.checkpointer,
-            middleware=[content_safety_user_middleware, content_safety_assistant_middleware, jailbreak_middleware, prompt_injection_middleware]
+            middleware=[parallel_before.before_agent_wrapper, parallel_after.after_agent_wrapper]
         )
 
     @traceable
@@ -109,6 +129,3 @@ class DeepAgents:
             config=config,
         )
         return result
-
-
-        

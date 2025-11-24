@@ -1,15 +1,17 @@
-from .content_safety import (
-    content_safety_assistant_middleware,
-    content_safety_user_middleware,
-)
-from .jailbreak import jailbreak_middleware
-from .query_analyzer import query_analyzer_human_interrupt_middleware
-from .prompt_injection import prompt_injection_middleware
+from .base_middleware import BaseMiddleware
+from .content_safety_middleware import ContentSafetyUserMiddleware, ContentSafetyAssistantMiddleware
+from .jailbreak_middleware import JailbreakMiddleware
+from .prompt_injection_middleware import PromptInjectionMiddleware
+from .query_analyzer_middlerware import QueryAnalyzerHumanInterruptMiddleware
+from .parallelize_middleware import ParallelBeforeMiddleware, ParallelAfterMiddleware  # New import
 
 __all__ = [
-    "content_safety_assistant_middleware",
-    "content_safety_user_middleware",
-    "jailbreak_middleware",
-    "query_analyzer_human_interrupt_middleware",
-    "prompt_injection_middleware",
+    "BaseMiddleware",
+    "ContentSafetyUserMiddleware",
+    "ContentSafetyAssistantMiddleware",
+    "JailbreakMiddleware",
+    "PromptInjectionMiddleware",
+    "QueryAnalyzerHumanInterruptMiddleware",
+    "ParallelBeforeMiddleware",
+    "ParallelAfterMiddleware",  # New export
 ]

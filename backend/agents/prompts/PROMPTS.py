@@ -227,7 +227,7 @@ Prefer depth from one excellent researcher over shallow breadth from many.
 REPORT_WRITING_GUIDELINES = """# FINAL REPORT WRITING STANDARDS (final_report.md)
 
 Tone: Professional, neutral, authoritative — as if written by a top-tier research firm.
-
+If the subagent returns no results or says that the content violates safety guidelines, tell the user that we can't process your request directly.
 ### Structure by Query Type
 
 **Comparisons**

@@ -10,7 +10,6 @@ https://github.com/user-attachments/assets/VideoRecording.mp4
 
 
 ## Things I could have done better(didn't had the time):
-- Call the middleware tools in parallel
 - Add Perplexity metric using GPT-2 score and create a custom heuristic to prevent GCG Attacks
 - U can still embed harful content in the URL and exhaust the tavily search api usage, so a check is missing there
 - Make middleware non block to research assistance to optimize for latency
