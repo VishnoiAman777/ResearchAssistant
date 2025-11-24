@@ -16,6 +16,7 @@ from agents.middleware import (
     ParallelBeforeMiddleware,
     ParallelAfterMiddleware,
     PromptInjectionMiddleware,
+    PromptInjectionSubAgentMiddleware,
     JailbreakMiddleware,
     ContentSafetyUserMiddleware,
     ContentSafetyAssistantMiddleware,
@@ -85,6 +86,7 @@ class DeepAgents:
             "description": "Use this agent if you want to conduct a resarch on a specific topic like temperature/cooking/stocks/research using internet. Only give this researcher one topic at a time.",
             "system_prompt": RESEARCHER_INSTRUCTIONS,
             "tools": [tavily_search, think_tool],
+            "middleware": [ParallelAfterMiddleware([PromptInjectionSubAgentMiddleware()]).after_agent_wrapper]
         }
         self.query_analyzer_sub_agent = {
             "name": "query-analyzer",

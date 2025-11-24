@@ -1,9 +1,9 @@
 from .base_middleware import BaseMiddleware
 from .content_safety_middleware import ContentSafetyUserMiddleware, ContentSafetyAssistantMiddleware
 from .jailbreak_middleware import JailbreakMiddleware
-from .prompt_injection_middleware import PromptInjectionMiddleware
+from .prompt_injection_middleware import PromptInjectionMiddleware, PromptInjectionSubAgentMiddleware
 from .query_analyzer_middlerware import QueryAnalyzerHumanInterruptMiddleware
-from .parallelize_middleware import ParallelBeforeMiddleware, ParallelAfterMiddleware  # New import
+from .parallelize_middleware import ParallelBeforeMiddleware, ParallelAfterMiddleware  
 
 __all__ = [
     "BaseMiddleware",
@@ -13,5 +13,6 @@ __all__ = [
     "PromptInjectionMiddleware",
     "QueryAnalyzerHumanInterruptMiddleware",
     "ParallelBeforeMiddleware",
-    "ParallelAfterMiddleware",  # New export
+    "ParallelAfterMiddleware",  
+    "PromptInjectionSubAgentMiddleware"
 ]

@@ -44,7 +44,36 @@ class PromptInjectionMiddleware(BaseMiddleware):
         messages = [msg for msg in state["messages"]]
         if not messages:
             return None
-        last_messages = [msg.content for msg in messages[-5:]]
+        last_messages = [str(msg.content) if not isinstance(msg.content, str) else msg.content for msg in messages[-5:]]
+        combined_msg = "\n".join(last_messages)
+        if not llm_prompt_check(combined_msg):
+            return {
+                "messages": [
+                    {
+                        "role": "assistant",
+                        "content": self.refusal_phrases[0],
+                    }
+                ],
+                "jump_to": "end",
+            }
+        return None
+
+
+class PromptInjectionSubAgentMiddleware(BaseMiddleware):
+    """
+    Prompt injection detection middleware (before agent).
+    """
+    def __init__(self):
+        super().__init__()
+
+    def after_agent_logic(self, state: AgentState, runtime: Runtime) -> Optional[Dict[str, Any]]:
+        if not state.get("messages"):
+            return None
+        # Checking all the messages returned by system
+        messages = [msg for msg in state["messages"]]
+        if not messages:
+            return None
+        last_messages = [str(msg.content) if not isinstance(msg.content, str) else msg.content for msg in messages[-10:]]
         combined_msg = "\n".join(last_messages)
         if not llm_prompt_check(combined_msg):
             return {
